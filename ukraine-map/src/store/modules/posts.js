@@ -4,8 +4,6 @@ export default {
             const fetchResult = await fetch("https://jsonplaceholder.typicode.com/posts");
             const posts = await fetchResult.json();
 
-            console.log(posts);
-
             ctx.commit('updatePosts', posts);
         }
     },

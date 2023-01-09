@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import PostsPage from '../views/PostsPage.vue';
+import PostsPage from '../views/posts-page/PostsPage.vue';
 import UkraineMapPage from '../views/UkraineMapPage.vue';
 
 Vue.use(VueRouter);
