@@ -16,11 +16,9 @@ export default {
   computed: {
     countOfCommentsPerPost() {
       const comments = this.allComments;
-      console.log(this.postID);
       const allPostСomments = comments.filter(
-        (comment) => comment.postId == this.postId
+        (comment) => comment.postId === this.postId
       );
-      console.log(allPostСomments);
 
       return allPostСomments.length;
     },
