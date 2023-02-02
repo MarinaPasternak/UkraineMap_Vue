@@ -4,25 +4,20 @@
     <p class="card-text">
       {{ postBody }}
     </p>
-    <p class="comments-count">
-      <span>Comments: </span>{{ countOfCommentsPerPost }}
-    </p>
+    <div>
+      <comment-message :post-id="postId"></comment-message>
+    </div>
   </div>
 </template>
 
 <script>
+import CommentMessage from "./CommentMessage";
 export default {
   props: ["postBody", "postTitle", "postId", "allComments"],
-  computed: {
-    countOfCommentsPerPost() {
-      const comments = this.allComments;
-      const allPostСomments = comments.filter(
-        (comment) => comment.postId === this.postId
-      );
-
-      return allPostСomments.length;
-    },
+  components: {
+    CommentMessage,
   },
+  computed: {},
 };
 </script>
 
@@ -31,9 +26,5 @@ export default {
   width: 350px;
   margin-bottom: 1.3rem;
   padding: 1.5rem;
-}
-
-.comments-count span {
-  font-weight: 800;
 }
 </style>

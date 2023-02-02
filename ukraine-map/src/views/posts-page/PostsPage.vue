@@ -3,33 +3,22 @@
     <h1>POSTS</h1>
     <input
       type="text"
-      placeholder="Start typing..."
+      placeholder="Start typing post title..."
       v-model="searchedPostTitle"
     />
-    <template v-if="filteredPosts">
-      <div class="d-flex posts-list">
-        <post-card
-          v-for="item in filteredPosts"
-          :key="item.id"
-          :post-id="item.id"
-          :post-body="item.body"
-          :post-title="item.title"
-          :all-comments="allComments"
-        ></post-card>
-      </div>
-    </template>
-    <template v-else>
-      <div class="d-flex posts-list">
-        <post-card
-          v-for="item in getAllPosts"
-          :key="item.id"
-          :post-id="item.id"
-          :post-body="item.body"
-          :post-title="item.title"
-          :all-comments="allComments"
-        ></post-card>
-      </div>
-    </template>
+    <div v-if="filteredPosts && filteredPosts.length" class="d-flex posts-list">
+      <post-card
+        v-for="item in filteredPosts"
+        :key="item.id"
+        :post-id="item.id"
+        :post-body="item.body"
+        :post-title="item.title"
+      ></post-card>
+    </div>
+    <div v-else-if="filteredPosts.length === 0 && getAllPosts.length > 0">
+      Nothig founded
+    </div>
+    <div v-else>Loading...</div>
   </div>
 </template>
 
@@ -41,41 +30,25 @@ export default {
     return {
       userTypingTimer: null,
       searchedPostTitle: "",
-      filteredPosts: null,
-      allComments: null,
     };
   },
   components: {
     PostCard,
   },
-  computed: mapGetters(["getAllPosts"]),
+  computed: {
+    ...mapGetters(["getAllPosts"]),
+    filteredPosts() {
+      return this.getAllPosts?.filter((post) => {
+        return post.title
+          .toLowerCase()
+          .includes(this.searchedPostTitle.toLowerCase());
+      });
+    },
+  },
   methods: {
     ...mapActions(["fetchAllPosts"]),
   },
-  watch: {
-    searchedPostTitle() {
-      if (!this.awaitingSearch) {
-        setTimeout(() => {
-          if (this.searchedPostTitle.length > 0) {
-            this.filteredPosts = this.getAllPosts.filter((post) =>
-              post.title.includes(this.searchedPostTitle)
-            );
-          } else {
-            this.filteredPosts = this.getAllPosts;
-          }
-
-          this.awaitingSearch = false;
-        }, 1500);
-      }
-      this.awaitingSearch = true;
-    },
-  },
-  async created() {
-    // const response = await fetch(
-    //   "https://jsonplaceholder.typicode.com/comments"
-    // );
-    // this.allComments = await response.json();
-    this.allComments = [];
+  mounted() {
     this.fetchAllPosts();
   },
 };
@@ -93,6 +66,7 @@ h1 {
 
 input {
   display: flex;
+  width: 250px;
   margin: 1.2rem;
   margin-left: auto;
 }
