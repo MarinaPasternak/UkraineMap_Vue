@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="post-page-container">
     <h1>POSTS</h1>
     <input
       type="text"
@@ -55,9 +55,12 @@ export default {
 </script>
 
 <style scoped>
+.post-page-container {
+  padding: 3rem;
+}
 .posts-list {
   flex-wrap: wrap;
-  justify-content: space-around;
+  justify-content: center;
 }
 
 h1 {
