@@ -1,60 +1,77 @@
 <template>
   <div class="post-page-container">
     <h1>POSTS</h1>
-    <input
-      type="text"
-      placeholder="Start typing post title..."
-      v-model="searchedPostTitle"
-    />
-    <div v-if="filteredPosts && filteredPosts.length" class="d-flex posts-list">
+    <b-pagination
+      :total-rows="totalRows"
+      :per-page="perPage"
+      v-model="currentPage"
+      @input="fetchData"
+      class="posts-pagination"
+    ></b-pagination>
+    <div v-if="loading" class="spinner">Loading...</div>
+    <div v-else class="d-flex posts-list">
       <post-card
-        v-for="item in filteredPosts"
+        v-for="item in allPosts"
         :key="item.id"
         :post-id="item.id"
         :post-body="item.body"
         :post-title="item.title"
       ></post-card>
     </div>
-    <div v-else-if="filteredPosts.length === 0 && getAllPosts.length > 0">
-      Nothig founded
-    </div>
-    <div v-else>Loading...</div>
+    <b-pagination
+      :total-rows="totalRows"
+      :per-page="perPage"
+      v-model="currentPage"
+      @input="fetchData"
+      class="posts-pagination"
+    ></b-pagination>
   </div>
 </template>
 
 <script>
 import PostCard from "./components/PostCard.vue";
-import { mapGetters, mapActions } from "vuex";
 export default {
-  data() {
-    return {
-      userTypingTimer: null,
-      searchedPostTitle: "",
-    };
-  },
   components: {
     PostCard,
   },
   computed: {
-    ...mapGetters(["getAllPosts"]),
-    filteredPosts() {
-      return this.getAllPosts?.filter((post) => {
-        return post.title
-          .toLowerCase()
-          .includes(this.searchedPostTitle.toLowerCase());
-      });
+    totalRows() {
+      return this.$store.state.posts.posts.length;
+    },
+    perPage() {
+      return 10;
+    },
+    allPosts() {
+      const startIndex = (this.currentPage - 1) * this.perPage;
+      const endIndex = startIndex + this.perPage;
+      return this.$store.state.posts.posts.slice(startIndex, endIndex);
+    },
+    loading() {
+      return this.$store.state.loading;
     },
   },
+  data() {
+    return {
+      currentPage: 1,
+    };
+  },
   methods: {
-    ...mapActions(["fetchAllPosts"]),
+    fetchData() {
+      this.$store.dispatch("fetchPosts");
+    },
   },
   mounted() {
-    this.fetchAllPosts();
+    this.fetchData();
   },
 };
 </script>
 
-<style scoped>
+<style>
+.spinner {
+  text-align: center;
+  margin-top: 20px;
+}
+
 .post-page-container {
   padding: 3rem;
 }
@@ -62,15 +79,10 @@ export default {
   flex-wrap: wrap;
   justify-content: center;
 }
-
 h1 {
   margin: 1.2rem;
 }
-
-input {
-  display: flex;
-  width: 250px;
-  margin: 1.2rem;
-  margin-left: auto;
+.posts-pagination {
+  justify-content: center;
 }
 </style>
