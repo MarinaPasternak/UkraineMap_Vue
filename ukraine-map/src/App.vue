@@ -4,7 +4,7 @@
       <b-navbar toggleable="lg" type="light" variant="light">
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
-        <b-collapse id="nav-collapse" align="center" is-nav>
+        <b-collapse id="nav-collapse" is-nav>
           <b-navbar-nav>
             <router-link to="/posts" class="nav-link">Posts</router-link>
             <router-link to="/ukraine-map" class="nav-link">Map</router-link>

@@ -1,15 +1,15 @@
 export default {
     state: {
         posts: [],
-        loading: false
+        loading: false,
       },
       mutations: {
         setPosts(state, posts) {
-          state.posts = posts
+          state.posts = posts;
         },
         setLoading(state, loading) {
-          state.loading = loading
-        }
+          state.loading = loading;
+        },
       },
       actions: {
         async fetchPosts({ commit }) {

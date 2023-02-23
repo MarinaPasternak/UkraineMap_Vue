@@ -1,17 +1,20 @@
 <template>
   <div class="post-page-container">
     <h1>POSTS</h1>
-    <b-pagination
-      :total-rows="totalRows"
-      :per-page="perPage"
-      v-model="currentPage"
-      @input="fetchData"
-      class="posts-pagination"
-    ></b-pagination>
-    <div v-if="loading" class="spinner">Loading...</div>
+    <div class="d-flex filter-container">
+      <b-pagination
+        :total-rows="totalRows"
+        :per-page="perPage"
+        v-model="currentPage"
+        @input="fetchData"
+        class="posts-pagination"
+      ></b-pagination>
+      <input v-model="searchTerm" type="text" placeholder="Search by title" />
+    </div>
+    <div v-if="loading && filteredPosts" class="spinner">Loading...</div>
     <div v-else class="d-flex posts-list">
       <post-card
-        v-for="item in allPosts"
+        v-for="item in filteredPosts"
         :key="item.id"
         :post-id="item.id"
         :post-body="item.body"
@@ -34,30 +37,40 @@ export default {
   components: {
     PostCard,
   },
-  computed: {
-    totalRows() {
-      return this.$store.state.posts.posts.length;
-    },
-    perPage() {
-      return 10;
-    },
-    allPosts() {
-      const startIndex = (this.currentPage - 1) * this.perPage;
-      const endIndex = startIndex + this.perPage;
-      return this.$store.state.posts.posts.slice(startIndex, endIndex);
-    },
-    loading() {
-      return this.$store.state.loading;
-    },
-  },
   data() {
     return {
       currentPage: 1,
+      perPage: 10,
+      totalRows: 0,
+      searchTerm: "",
     };
+  },
+  computed: {
+    loading() {
+      return this.$store.state.loading;
+    },
+    filteredPosts(state) {
+      const filteredPosts = this.allPosts.filter((post) =>
+        post.title.toLowerCase().includes(state.searchTerm.trim().toLowerCase())
+      );
+
+      this.countAllRFilterdRecords(filteredPosts);
+
+      const startIndex = (this.currentPage - 1) * this.perPage;
+      const endIndex = startIndex + this.perPage;
+
+      return filteredPosts.slice(startIndex, endIndex);
+    },
+    allPosts() {
+      return this.$store.state.posts.posts;
+    },
   },
   methods: {
     fetchData() {
       this.$store.dispatch("fetchPosts");
+    },
+    countAllRFilterdRecords(posts) {
+      this.totalRows = posts.length;
     },
   },
   mounted() {
@@ -84,5 +97,11 @@ h1 {
 }
 .posts-pagination {
   justify-content: center;
+}
+
+.filter-container {
+  margin: 3rem;
+  justify-content: space-between;
+  align-items: center;
 }
 </style>
