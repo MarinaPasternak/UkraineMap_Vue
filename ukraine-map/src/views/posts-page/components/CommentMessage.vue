@@ -1,10 +1,11 @@
 <template>
   <div>
-    <div v-if="commentsForPost && commentsForPost.length > 0">
+    <div v-if="allPostComments.length > 0">
       <div>
         <div>
           <button @click="showModal">See Statistic There</button>
           <b-modal :id="modalID" title="Chart">
+            <p>{{ refChartName }}</p>
             <canvas :ref="refChartName"></canvas>
           </b-modal>
         </div>
@@ -24,11 +25,11 @@
                 class="cls-2"
                 d="M448,76.56A38.44,38.44,0,0,1,486.4,115v230.4a38.44,38.44,0,0,1-38.4,38.4H66.2l-7.5,7.5-33.1,33.1V115A38.44,38.44,0,0,1,64,76.56H448M448,51H64A64,64,0,0,0,0,115V443.21A17.78,17.78,0,0,0,17.92,461a17.42,17.42,0,0,0,12.45-5.25L76.8,409.36H448a64,64,0,0,0,64-64V115a64,64,0,0,0-64-64Z"
               /></svg></span
-          >{{ commentsForPost.length }}
+          >{{ allPostComments.length }}
         </p>
       </div>
 
-      <div v-for="comment in commentsForPost" :key="comment.id">
+      <div v-for="comment in allPostComments" :key="comment.id">
         <p class="users-email">
           <span
             ><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
@@ -46,27 +47,19 @@
         </p>
       </div>
     </div>
-    <div v-else class="no-posts-message">There are no posts here yet</div>
+    <div v-else class="no-posts-message">There are no comments here yet</div>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
-import { Chart } from "chart.js";
+import { mapActions } from "vuex";
+import Chart from "chart.js/auto";
 
 export default {
   props: ["postId"],
-  data() {
-    return {
-      symbolCountMap: new Map(),
-    };
-  },
   computed: {
-    ...mapGetters(["getAllComments"]),
-    commentsForPost() {
-      return this.getAllComments?.filter(
-        (comment) => comment.postId === this.postId
-      );
+    allPostComments() {
+      return this.$store.state.comments.comments;
     },
     accordionClassName() {
       return `post${this.postId}`;
@@ -79,56 +72,68 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["fetchAllComments"]),
+    ...mapActions(["fetchCommentsByPostId"]),
     showModal() {
       this.$bvModal.show(this.modalID);
     },
-    countSymbolCountMap() {
-      this.commentsForPost?.forEach((comment) => {
-        if (!this.symbolCountMap.has(comment.email)) {
-          this.symbolCountMap.set(comment.email, comment.email.length);
+    loadChartData() {
+      let symbolCountMap = new Map();
+
+      this.allPostComments.forEach((comment) => {
+        if (!symbolCountMap.has(comment.email)) {
+          symbolCountMap.set(comment.email, comment.email.length);
         }
       });
-      console.log(this.symbolCountMap);
-      console.log([...this.symbolCountMap.keys()]);
-      console.log(this.symbolCountMap.values());
+
+      const chartData = {
+        labels: [...symbolCountMap.keys()],
+        datasets: [
+          {
+            label: "Number of users",
+            backgroundColor: "rgba(255, 99, 132, 0.2)",
+            borderColor: "rgba(255, 99, 132, 1)",
+            borderWidth: 1,
+            data: [...symbolCountMap.values()],
+          },
+        ],
+      };
+
+      return chartData;
     },
-    createChart() {
-      const canvas = this.$refs[this.refChartName];
-      console.log(canvas);
-      const ctx = canvas.getContext("2d");
-      new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: [
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-          ],
-          datasets: [
-            {
-              label: "My Dataset",
-              data: [10, 20, 30, 40, 50, 60, 70],
-              fill: false,
-              borderColor: "rgb(75, 192, 192)",
-              tension: 0.1,
-            },
-          ],
+    renderCharts() {
+      const chartData = this.loadChartData();
+
+      const ctx = this.$refs[this.refChartName].getContext("2d");
+
+      this.chart = new Chart(ctx, {
+        type: "bar",
+        data: chartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            yAxes: [
+              {
+                ticks: {
+                  beginAtZero: true,
+                },
+              },
+            ],
+          },
         },
       });
     },
+    updateChart() {
+      const chartData = this.loadChartData();
+      this.chart.data = chartData;
+      this.chart.update();
+    },
   },
   mounted() {
-    this.fetchAllComments();
-    this.$nextTick(() => {
-      setTimeout(() => {
-        this.createChart(), 10;
-      });
-    });
+    this.fetchCommentsByPostId(this.postId);
+  },
+  created() {
+    this.renderCharts();
   },
 };
 </script>
