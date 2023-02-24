@@ -1,12 +1,20 @@
 <template>
   <div>
     <div v-if="allPostComments.length > 0">
-      <div>
-        <div>
-          <button @click="showModal">See Statistic There</button>
-          <b-modal :id="modalID" title="Chart">
-            <p>{{ refChartName }}</p>
-            <canvas :ref="refChartName"></canvas>
+      <div class="d-flex statistic-container">
+        <div class="chart-container">
+          <button @click="showModal" class="btn btn-outline-primary">
+            See Statistic There
+          </button>
+          <b-modal
+            :id="modalID"
+            title="Number of users emeils symbols"
+            :modal-class="'my-modal-class'"
+          >
+            <canvas
+              :ref="refChartName"
+              style="height: 400px; width: 400px"
+            ></canvas>
           </b-modal>
         </div>
         <p class="comments-count">
@@ -75,6 +83,9 @@ export default {
     ...mapActions(["fetchCommentsByPostId"]),
     showModal() {
       this.$bvModal.show(this.modalID);
+      this.$nextTick(() => {
+        this.renderCharts();
+      });
     },
     loadChartData() {
       let symbolCountMap = new Map();
@@ -89,7 +100,7 @@ export default {
         labels: [...symbolCountMap.keys()],
         datasets: [
           {
-            label: "Number of users",
+            label: "Number of symbols",
             backgroundColor: "rgba(255, 99, 132, 0.2)",
             borderColor: "rgba(255, 99, 132, 1)",
             borderWidth: 1,
@@ -109,31 +120,22 @@ export default {
         type: "bar",
         data: chartData,
         options: {
-          responsive: true,
+          responsive: false,
           maintainAspectRatio: false,
-          scales: {
-            yAxes: [
-              {
-                ticks: {
-                  beginAtZero: true,
-                },
+          yAxes: [
+            {
+              type: "linear",
+              ticks: {
+                beginAtZero: true,
               },
-            ],
-          },
+            },
+          ],
         },
       });
-    },
-    updateChart() {
-      const chartData = this.loadChartData();
-      this.chart.data = chartData;
-      this.chart.update();
     },
   },
   mounted() {
     this.fetchCommentsByPostId(this.postId);
-  },
-  created() {
-    this.renderCharts();
   },
 };
 </script>
@@ -141,6 +143,7 @@ export default {
 <style scoped>
 .comments-count {
   text-align: right;
+  margin: 0;
 }
 .no-posts-message,
 .comments-count,
@@ -171,5 +174,15 @@ export default {
 .comments-count svg {
   width: 30px;
   margin-right: 5px;
+}
+.my-modal-class {
+  width: 400px;
+  height: 300px;
+}
+
+.statistic-container {
+  margin: 20px 10px 14px 10px;
+  align-items: center;
+  justify-content: space-between;
 }
 </style>
