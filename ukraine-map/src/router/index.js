@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import PostsPage from '../views/posts-page/PostsPage.vue';
-import UkraineMapPage from '../views/UkraineMapPage.vue';
+import UkraineMapPage from '../views/map-page/UkraineMapPage.vue';
 
 Vue.use(VueRouter);
 

@@ -88,13 +88,16 @@ export default {
 .post-page-container {
   padding: 3rem;
 }
+
 .posts-list {
   flex-wrap: wrap;
   justify-content: center;
 }
+
 h1 {
   margin: 1.2rem;
 }
+
 .posts-pagination {
   justify-content: center;
 }
