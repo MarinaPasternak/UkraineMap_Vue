@@ -101,7 +101,7 @@ export default {
     },
     closeModal() {
       this.$bvModal.hide("formAddMarker");
-      this.coordinates = "";
+      this.pointName = "";
     },
   },
 };
