@@ -11,13 +11,24 @@
       >
         <form>
           <label>Point name</label>
-          <input type="text" :value="pointName" />
+          <input type="text" v-model="pointName" />
           <label>Point latitude</label>
-          <input type="text" :value="pointLNG" />
+          <input type="text" v-model="pointLNG" disabled />
           <label>Point longitude</label>
-          <input type="text" :value="pointLAT" />
-          <button type="button" @click="closeModal">Cancel</button>
-          <button type="submit" @click.prevent="addMarkerToArray">Save</button>
+          <input type="text" v-model="pointLAT" disabled />
+          <div class="d-flex buttons-container">
+            <button class="btn btn-secondary" type="button" @click="closeModal">
+              Cancel
+            </button>
+            <button
+              class="btn btn-primary"
+              type="submit"
+              :disabled="!allFieldsFilled"
+              @click.prevent="addMarkerToArray"
+            >
+              Save
+            </button>
+          </div>
         </form>
       </b-modal>
     </div>
@@ -35,31 +46,37 @@ export default {
       pointLAT: "",
       pointName: "",
       coordinates: null,
+      map: null,
     };
   },
+  computed: {
+    allFieldsFilled() {
+      return !!this.pointLAT && !!this.pointLNG && !!this.pointName;
+    },
+  },
   mounted() {
-    const map = L.map("map").setView([48.3794, 31.1656], 6);
+    this.map = L.map("map").setView([48.3794, 31.1656], 6);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution:
         'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
       maxZoom: 18,
-    }).addTo(map);
+    }).addTo(this.map);
 
     this.getMarkersArray();
 
     this.markersArray.forEach((point) => {
-      L.marker([point.lat, point.lng]).addTo(map);
+      L.marker([point.lat, point.lng]).bindPopup(point.name).addTo(this.map);
     });
 
-    this.addClickListener(map);
+    this.addClickListener();
   },
   methods: {
-    addClickListener(map) {
-      map.on("click", (e) => {
-        this.addMarkerToArray(e.latlng);
-
+    addClickListener() {
+      this.map.on("click", (e) => {
         this.coordinates = e.latlng;
+        this.pointLAT = this.coordinates.lat.toFixed(3);
+        this.pointLNG = this.coordinates.lng.toFixed(3);
 
         this.$bvModal.show("formAddMarker");
       });
@@ -72,13 +89,16 @@ export default {
       }
     },
     addMarkerToArray() {
-      L.marker(this.coordinates).addTo(map);
-
-      this.pointLAT = this.coordinates.lat.toFixed(3);
-      this.pointLNG = this.coordinates.lng.toFixed(3);
+      L.marker(this.coordinates).bindPopup(this.pointName).addTo(this.map);
 
       this.markersArray.push({ name: this.pointName, ...this.coordinates });
       localStorage.setItem("markers", JSON.stringify(this.markersArray));
+
+      this.closeModal();
+    },
+    closeModal() {
+      this.$bvModal.hide("formAddMarker");
+      this.coordinates = "";
     },
   },
 };
@@ -96,5 +116,14 @@ h1 {
 #map {
   width: 100%;
   height: 600px;
+}
+
+.buttons-container {
+  float: right;
+  margin-top: 30px;
+}
+
+.buttons-container .btn-secondary {
+  margin-right: 15px;
 }
 </style>
