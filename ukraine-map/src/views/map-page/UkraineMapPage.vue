@@ -5,17 +5,20 @@
       <div id="map"></div>
       <b-modal
         id="formAddMarker"
-        title="Add marker to map"
+        title="Add marker to the map"
         modal-class="my-modal-class"
         hide-footer
       >
-        <form>
-          <label>Point name</label>
-          <input type="text" v-model="pointName" />
-          <label>Point latitude</label>
-          <input type="text" v-model="pointLNG" disabled />
-          <label>Point longitude</label>
-          <input type="text" v-model="pointLAT" disabled />
+        <b-form>
+          <b-form-group label="Point name:" class="input-groups">
+            <input type="text" v-model="pointName" />
+          </b-form-group>
+          <b-form-group label="Point latitude:" class="input-groups">
+            <input type="text" v-model="pointLNG" disabled />
+          </b-form-group>
+          <b-form-group label="Point longitude:" class="input-groups">
+            <input type="text" v-model="pointLAT" disabled />
+          </b-form-group>
           <div class="d-flex buttons-container">
             <button class="btn btn-secondary" type="button" @click="closeModal">
               Cancel
@@ -29,7 +32,7 @@
               Save
             </button>
           </div>
-        </form>
+        </b-form>
       </b-modal>
     </div>
   </div>
@@ -125,5 +128,9 @@ h1 {
 
 .buttons-container .btn-secondary {
   margin-right: 15px;
+}
+
+.input-groups {
+  margin-bottom: 15px;
 }
 </style>
