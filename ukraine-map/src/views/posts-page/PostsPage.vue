@@ -6,7 +6,7 @@
         :total-rows="totalRows"
         :per-page="perPage"
         v-model="currentPage"
-        @input="fetchData"
+        @input="fetchPosts"
         class="posts-pagination"
       ></b-pagination>
       <input v-model="searchTerm" type="text" placeholder="Search by title" />
@@ -25,13 +25,14 @@
       :total-rows="totalRows"
       :per-page="perPage"
       v-model="currentPage"
-      @input="fetchData"
+      @input="fetchPosts"
       class="posts-pagination"
     ></b-pagination>
   </div>
 </template>
 
 <script>
+import { mapState, mapActions } from "vuex";
 import PostCard from "./components/PostCard.vue";
 export default {
   components: {
@@ -46,11 +47,12 @@ export default {
     };
   },
   computed: {
-    loading() {
-      return this.$store.state.loading;
-    },
+    ...mapState({
+      loading: (state) => state.loading,
+      allPosts: (state) => state.posts.posts,
+    }),
     filteredPosts(state) {
-      const filteredPosts = this.allPosts.filter((post) =>
+      const filteredPosts = this.allPosts?.filter((post) =>
         post.title.toLowerCase().includes(state.searchTerm.trim().toLowerCase())
       );
 
@@ -61,20 +63,15 @@ export default {
 
       return filteredPosts.slice(startIndex, endIndex);
     },
-    allPosts() {
-      return this.$store.state.posts.posts;
-    },
   },
   methods: {
-    fetchData() {
-      this.$store.dispatch("fetchPosts");
-    },
+    ...mapActions(["fetchPosts"]),
     countAllRFilterdRecords(posts) {
       this.totalRows = posts.length;
     },
   },
   mounted() {
-    this.fetchData();
+    this.fetchPosts();
   },
 };
 </script>

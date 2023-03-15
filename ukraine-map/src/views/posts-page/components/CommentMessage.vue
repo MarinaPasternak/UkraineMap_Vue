@@ -60,15 +60,15 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapState } from "vuex";
 import Chart from "chart.js/auto";
 
 export default {
   props: ["postId"],
   computed: {
-    allPostComments() {
-      return this.$store.state.comments.comments;
-    },
+    ...mapState({
+      allPostComments: (state) => state.comments.comments,
+    }),
     accordionClassName() {
       return `post${this.postId}`;
     },
