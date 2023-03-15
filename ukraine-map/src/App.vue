@@ -3,7 +3,6 @@
     <div>
       <b-navbar toggleable="lg" type="light" variant="light">
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
-
         <b-collapse id="nav-collapse" is-nav>
           <b-navbar-nav>
             <router-link to="/posts" class="nav-link">Posts</router-link>
