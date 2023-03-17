@@ -91,7 +91,7 @@ export default {
   justify-content: center;
 }
 
-h1 {
+.post-page-container h1 {
   margin: 1.2rem;
 }
 
